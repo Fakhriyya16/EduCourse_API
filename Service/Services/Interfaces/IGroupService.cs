@@ -12,5 +12,7 @@ namespace Service.Services.Interfaces
         Task<IEnumerable<GroupDto>> GetAllAsync();
         Task<IEnumerable<GroupDto>> SearchAsync(string name);
         Task<IEnumerable<GroupDto>> Sort(string sortName, bool isDescending);
+        Task<bool> CheckIfExists(int? id);
+        Task<List<GroupDto>> GetById(List<int>? id);
     }
 }

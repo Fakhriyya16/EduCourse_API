@@ -8,8 +8,8 @@ namespace Repository.Repositories
 {
     public class BaseRepository<T> : IBaseRepository<T> where T : BaseEntity
     {
-        private readonly AppDbContext _context;
-        private readonly DbSet<T> _entities;
+        protected readonly AppDbContext _context;
+        protected readonly DbSet<T> _entities;
         public BaseRepository(AppDbContext context)
         {
             _context = context;

@@ -9,5 +9,6 @@ namespace Repository.Repositories.Interfaces
 {
     public interface IGroupRepository : IBaseRepository<Group>
     {
+        Task<List<Group>> GetByIdWithAsync(List<int>? id);
     }
 }

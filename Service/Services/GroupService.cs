@@ -12,15 +12,29 @@ namespace Service.Services
     {
         private readonly IGroupRepository _groupRepository;
         private readonly IMapper _mapper;
-        public GroupService(IGroupRepository groupRepository, IMapper mapper)
+        private readonly IRoomRepository _roomRepository;
+        public GroupService(IGroupRepository groupRepository, IMapper mapper, IRoomRepository roomRepository)
         {
             _groupRepository = groupRepository;
             _mapper = mapper;
+            _roomRepository = roomRepository;
         }
+
+        public async Task<bool> CheckIfExists(int? id)
+        {
+            var group = await _groupRepository.GetByIdAsync((int)id);
+            if (group is null) return false;
+            return true;
+        }
+
         public async Task CreateAsync(GroupCreateDto model)
         {
-            Group group = _mapper.Map<Group>(model);
-            await _groupRepository.CreateAsync(group);
+            if (model == null) throw new ArgumentNullException();
+            var room = await _roomRepository.GetByIdAsync(model.RoomId);
+
+            if (model.Capacity > room.SeatCount) throw new NotFoundException("Room does not have enough space");
+
+            await _groupRepository.CreateAsync(_mapper.Map<Group>(model));
         }
 
         public async Task DeleteAsync(int? id)
@@ -54,11 +68,11 @@ namespace Service.Services
 
         public async Task<GroupDetailDto> GetByIdAsync(int id)
         {
-            Group group = await _groupRepository.GetByIdAsync((int)id);
+            var group = _groupRepository.FindBy(m => m.Id == id, m => m.StudentGroups).FirstOrDefault();
 
             if (group is null) throw new NotFoundException("Group was not found");
 
-            return _mapper.Map<GroupDetailDto>(_groupRepository.FindBy(m => m.Id == id, m => m.StudentGroups));
+            return _mapper.Map<GroupDetailDto>(group);
         }
 
         public async Task<IEnumerable<GroupDto>> SearchAsync(string name)
@@ -90,6 +104,14 @@ namespace Service.Services
                 if (isDescending) return _mapper.Map<IEnumerable<GroupDto>>(allGroups.OrderByDescending(m => m.Capacity));
                 else return _mapper.Map<IEnumerable<GroupDto>>(allGroups.OrderBy(m => m.Capacity));
             }
+        }
+
+        public async Task<List<GroupDto>> GetById(List<int>? id)
+        {
+
+            var existGroup = await _groupRepository.GetByIdWithAsync(id);
+            var data = _mapper.Map<List<GroupDto>>(existGroup);
+            return data;
         }
     }
 }

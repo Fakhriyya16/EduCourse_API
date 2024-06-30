@@ -14,6 +14,10 @@ namespace Repository
         {
             services.AddScoped<IGroupRepository, GroupRepository>();
             services.AddScoped<IStudentRepository, StudentRepository>();
+            services.AddScoped<IRoomRepository, RoomRepository>();
+            services.AddScoped<ITeacherRepository, TeacherRepository>();
+            services.AddScoped<IEducationRepository, EducationRepository>();
+
             services.AddScoped(typeof(IBaseRepository<>),typeof(BaseRepository<>));
 
             return services;
